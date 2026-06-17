@@ -3,6 +3,7 @@ import 'package:eco_route/core/constants/app_strings.dart';
 import 'package:eco_route/core/constants/app_text_style.dart';
 import 'package:eco_route/features/home_nav/controller/home_provider.dart';
 import 'package:eco_route/features/home_nav/screen/widget/custom_route_card.dart';
+import 'package:eco_route/features/home_nav/screen/widget/custome_pollutant_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -185,10 +186,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _pollutantCard('PM2.5', '24'),
-                        _pollutantCard('PM10', '38'),
-                        _pollutantCard('NO₂', '12'),
-                        _pollutantCard('O₃', '18'),
+                        pollutantCard(title: 'PM2.5', value: '24'),
+
+                        pollutantCard(title: 'PM10', value: '38'),
+
+                        pollutantCard(title: 'NO₂', value: '12'),
+
+                        pollutantCard(title: 'O₃', value: '18'),
                       ],
                     ),
                   ],
@@ -254,7 +258,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-  
-  _pollutantCard(String s, String t) {}
 }
-
