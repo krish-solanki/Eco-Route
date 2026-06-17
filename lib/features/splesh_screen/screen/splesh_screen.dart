@@ -1,3 +1,4 @@
+// ignore_for_file: unused_local_variable
 import 'package:eco_route/core/constants/app_text_style.dart';
 import 'package:eco_route/features/splesh_screen/controller/splesh_provider.dart';
 import 'package:flutter/material.dart';
@@ -27,35 +28,40 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final isCompleted = ref.watch(splashProvider);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/splesh_screen_image.png',
-              fit: BoxFit.cover,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/splesh_screen_image.png',
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
 
-          SafeArea(
-            child: Column(
-              children: [
-                SizedBox(height: 80.h),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: 80.h),
 
-                Image.asset('assets/images/logo.png', height: 120),
+                  Image.asset('assets/images/logo.png', height: 120.h),
 
-                const SizedBox(height: 20),
+                  SizedBox(height: 20.h),
 
-                Text('EcoRoute', style: AppTextStyles.appLogo),
+                  Text('EcoRoute', style: AppTextStyles.appLogo),
 
-                const SizedBox(height: 12),
+                  SizedBox(height: 12.h),
 
-                Text('Breathe Better.', style: AppTextStyles.heading),
-
-                Text('Travel Smarter.', style: AppTextStyles.heading),
-              ],
+                  Text(
+                    'Breathe Better.Travel Smarter.',
+                    style: AppTextStyles.subHeading,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
