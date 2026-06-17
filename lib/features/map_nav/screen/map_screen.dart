@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:eco_route/core/constants/app_colors.dart';
 import 'package:eco_route/core/constants/app_text_style.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:latlong2/latlong.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -19,13 +20,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       body: Stack(
         children: [
           /// GOOGLE MAP
-          GoogleMap(
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(22.3039, 70.8022),
-              zoom: 14,
+          FlutterMap(
+            options: MapOptions(
+              initialCenter: const LatLng(22.3039, 70.8022),
+              initialZoom: 14,
             ),
-            zoomControlsEnabled: false,
-            myLocationButtonEnabled: false,
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.ecoroute.app',
+              ),
+            ],
           ),
 
           /// TOP SEARCH CARD
