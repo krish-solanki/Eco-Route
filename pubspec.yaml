@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_screenutil: ^5.9.3
   flutter_riverpod: ^2.6.1
+  google_maps_flutter: ^2.12.3
 
 dev_dependencies:
   flutter_test:
