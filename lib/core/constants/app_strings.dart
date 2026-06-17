@@ -79,4 +79,6 @@ class AppStrings {
   static const String unhealthySensitive = "Unhealthy for Sensitive";
 
   static const String unhealthy = "Unhealthy";
+
+  static const String seeAll = "See All";
 }
