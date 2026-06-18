@@ -1,8 +1,9 @@
+import 'package:eco_route/core/constants/app_colors.dart';
+import 'package:eco_route/core/constants/app_text_style.dart';
+import 'package:eco_route/features/map_nav/controller/map_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:eco_route/core/constants/app_colors.dart';
-import 'package:eco_route/core/constants/app_text_style.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -15,14 +16,26 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(mapProvider.notifier).getCurrentLocation();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    ref.watch(mapProvider);
+    final controller = ref.read(mapProvider.notifier);
+
     return Scaffold(
       body: Stack(
         children: [
-          /// GOOGLE MAP
           FlutterMap(
+            mapController: controller.internalMapController,
             options: MapOptions(
-              initialCenter: const LatLng(22.3039, 70.8022),
+              initialCenter: LatLng(controller.latitude, controller.longitude),
               initialZoom: 14,
             ),
             children: [
@@ -30,10 +43,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.ecoroute.app',
               ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: LatLng(controller.latitude, controller.longitude),
+                    width: 40,
+                    height: 40,
+                    child: Icon(
+                      Icons.location_on,
+                      color: AppColors.primary,
+                      size: 40.sp,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
 
-          /// TOP SEARCH CARD
+          // Floating Search Bars
           SafeArea(
             child: Padding(
               padding: EdgeInsets.all(16.r),
@@ -42,13 +69,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -57,10 +77,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       children: [
                         Icon(Icons.my_location, color: AppColors.primary),
                         SizedBox(width: 10.w),
-
-                        Expanded(
+                        const Expanded(
                           child: TextField(
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Current Location',
                             ),
@@ -68,21 +87,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         ),
                       ],
                     ),
-
                     Divider(height: 16.h),
-
                     Row(
                       children: [
                         const Icon(
                           Icons.location_on_outlined,
                           color: Colors.red,
                         ),
-
                         SizedBox(width: 10.w),
-
-                        Expanded(
+                        const Expanded(
                           child: TextField(
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Destination',
                             ),
@@ -96,7 +111,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ),
 
-          /// RIGHT SIDE BUTTONS
+          // Floating Action Button for Location centering
           Positioned(
             right: 16.w,
             bottom: 220.h,
@@ -108,117 +123,36 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     borderRadius: BorderRadius.circular(14.r),
                   ),
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      await controller.getCurrentLocation();
+                    },
                     icon: const Icon(Icons.my_location),
-                  ),
-                ),
-
-                SizedBox(height: 10.h),
-
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.layers_outlined),
-                  ),
-                ),
-
-                SizedBox(height: 10.h),
-
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14.r),
-                  ),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.explore_outlined),
                   ),
                 ),
               ],
             ),
           ),
 
-          /// BOTTOM ROUTE CARD
+          // Route Action Panel
           Positioned(
             left: 16.w,
             right: 16.w,
-            bottom: 20.h,
+            bottom: 100.h,
             child: Container(
               padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Recommended Route', style: AppTextStyles.subHeading),
-
-                  SizedBox(height: 12.h),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('6.4 km', style: AppTextStyles.value),
-                            Text('Distance', style: AppTextStyles.label),
-                          ],
-                        ),
-                      ),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('20 min', style: AppTextStyles.value),
-                            Text('Duration', style: AppTextStyles.label),
-                          ],
-                        ),
-                      ),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('AQI 42', style: AppTextStyles.value),
-                            Text(
-                              'Good',
-                              style: AppTextStyles.label.copyWith(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
                   SizedBox(height: 16.h),
-
                   SizedBox(
                     width: double.infinity,
                     height: 50.h,
                     child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14.r),
-                        ),
-                      ),
                       onPressed: () {},
                       icon: const Icon(Icons.navigation, color: Colors.white),
                       label: Text('Find Route', style: AppTextStyles.button),
