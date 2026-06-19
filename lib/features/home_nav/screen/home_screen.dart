@@ -28,6 +28,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(homeProvider);
+    final controller = ref.read(homeProvider.notifier);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -53,11 +56,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             const SizedBox(width: 12),
 
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Current Location',
                     style: TextStyle(
                       fontSize: 12,
@@ -66,13 +69,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
 
-                  Text(
-                    'Rajkot, Gujarat',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.black,
-                      fontWeight: FontWeight.w600,
+                  GestureDetector(
+                    onTap: () => controller.showCityName(context),
+                    child: Text(
+                      '${controller.selectedCity}, Gujarat',
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -133,7 +139,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '65',
+                                controller.aqi.toString(),
                                 style: TextStyle(
                                   fontSize: 48.sp,
                                   fontWeight: FontWeight.w700,
@@ -142,7 +148,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ),
 
                               Text(
-                                'Moderate',
+                                controller.getAQIStatus(controller.aqi),
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w600,
@@ -186,13 +192,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        pollutantCard(title: 'PM2.5', value: '24'),
+                        pollutantCard(
+                          title: 'PM2.5',
+                          value: controller.pm25.toStringAsFixed(1),
+                        ),
 
-                        pollutantCard(title: 'PM10', value: '38'),
-
-                        pollutantCard(title: 'NO₂', value: '12'),
-
-                        pollutantCard(title: 'O₃', value: '18'),
+                        pollutantCard(
+                          title: 'PM10',
+                          value: controller.pm10.toStringAsFixed(1),
+                        ),
+                        pollutantCard(
+                          title: 'NO₂',
+                          value: controller.no2.toStringAsFixed(1),
+                        ),
+                        pollutantCard(
+                          title: 'O₃',
+                          value: controller.o3.toStringAsFixed(1),
+                        ),
                       ],
                     ),
                   ],
