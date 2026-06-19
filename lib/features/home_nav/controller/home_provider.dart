@@ -9,9 +9,8 @@ final homeProvider = StateNotifierProvider<HomeController, bool>(
 
 class HomeController extends StateNotifier<bool> {
   HomeController() : super(false);
-
+  bool isLoading = true;
   final AQIService service = AQIService();
-
   String selectedCity = "Rajkot";
 
   int aqi = 0;
@@ -38,6 +37,8 @@ class HomeController extends StateNotifier<bool> {
 
   Future<void> fetchAQIForSelectedCity() async {
     try {
+      isLoading = true;
+      state = !state;
       final lat = cities[selectedCity]!["lat"]!;
       final lon = cities[selectedCity]!["lon"]!;
 
@@ -49,8 +50,11 @@ class HomeController extends StateNotifier<bool> {
       no2 = result.no2;
       o3 = result.o3;
 
+      isLoading = false;
       state = !state;
     } catch (e) {
+      isLoading = false;
+      state = !state;
       debugPrint(e.toString());
     }
   }
@@ -117,6 +121,23 @@ class HomeController extends StateNotifier<bool> {
         return 'Very Poor';
       default:
         return 'Unknown';
+    }
+  }
+
+  Color progressColor() {
+    switch (aqi) {
+      case 1:
+        return Colors.green;
+      case 2:
+        return Colors.lightGreen;
+      case 3:
+        return Colors.orange;
+      case 4:
+        return Colors.deepOrange;
+      case 5:
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 }

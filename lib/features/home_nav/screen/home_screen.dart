@@ -2,6 +2,7 @@ import 'package:eco_route/core/constants/app_colors.dart';
 import 'package:eco_route/core/constants/app_strings.dart';
 import 'package:eco_route/core/constants/app_text_style.dart';
 import 'package:eco_route/features/home_nav/controller/home_provider.dart';
+import 'package:eco_route/features/home_nav/screen/widget/aqi_skeleton.dart';
 import 'package:eco_route/features/home_nav/screen/widget/custom_route_card.dart';
 import 'package:eco_route/features/home_nav/screen/widget/custome_pollutant_card.dart';
 import 'package:flutter/material.dart';
@@ -106,115 +107,119 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Column(
           children: [
             // Summary Card
-            Padding(
-              padding: EdgeInsets.all(16.r),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(20.r),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(20.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      AppStrings.currentAirQuality,
-                      style: AppTextStyles.cardTitle,
-                    ),
+            controller.isLoading
+                ? const AQISkeleton()
+                : Padding(
+                    padding: EdgeInsets.all(16.r),
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(20.r),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(20.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppStrings.currentAirQuality,
+                            style: AppTextStyles.cardTitle,
+                          ),
 
-                    SizedBox(height: 20.h),
+                          SizedBox(height: 20.h),
 
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              Text(
-                                controller.aqi.toString(),
-                                style: TextStyle(
-                                  fontSize: 48.sp,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.orange,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      controller.aqi.toString(),
+                                      style: TextStyle(
+                                        fontSize: 48.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: controller.progressColor(),
+                                      ),
+                                    ),
+
+                                    Text(
+                                      controller.getAQIStatus(controller.aqi),
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: controller.progressColor(),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
 
-                              Text(
-                                controller.getAQIStatus(controller.aqi),
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.orange,
+                              Container(
+                                height: 70.h,
+                                width: 70.w,
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.air,
+                                  size: 38.sp,
+                                  color: controller.progressColor(),
                                 ),
                               ),
                             ],
                           ),
-                        ),
 
-                        Container(
-                          height: 70.h,
-                          width: 70.w,
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
+                          SizedBox(height: 20.h),
+
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(100.r),
+                            child: LinearProgressIndicator(
+                              value: controller.aqi / 5,
+                              minHeight: 10.h,
+                              backgroundColor: Colors.grey.shade200,
+                              valueColor: AlwaysStoppedAnimation(
+                                controller.progressColor(),
+                              ),
+                            ),
                           ),
-                          child: Icon(
-                            Icons.air,
-                            size: 38.sp,
-                            color: Colors.orange,
+
+                          SizedBox(height: 20.h),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              pollutantCard(
+                                title: 'PM2.5',
+                                value: controller.pm25.toStringAsFixed(1),
+                              ),
+
+                              pollutantCard(
+                                title: 'PM10',
+                                value: controller.pm10.toStringAsFixed(1),
+                              ),
+                              pollutantCard(
+                                title: 'NO₂',
+                                value: controller.no2.toStringAsFixed(1),
+                              ),
+                              pollutantCard(
+                                title: 'O₃',
+                                value: controller.o3.toStringAsFixed(1),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 20.h),
-
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100.r),
-                      child: LinearProgressIndicator(
-                        value: 0.65,
-                        minHeight: 10.h,
-                        backgroundColor: Colors.grey.shade200,
-                        valueColor: const AlwaysStoppedAnimation(Colors.orange),
+                        ],
                       ),
                     ),
-
-                    SizedBox(height: 20.h),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        pollutantCard(
-                          title: 'PM2.5',
-                          value: controller.pm25.toStringAsFixed(1),
-                        ),
-
-                        pollutantCard(
-                          title: 'PM10',
-                          value: controller.pm10.toStringAsFixed(1),
-                        ),
-                        pollutantCard(
-                          title: 'NO₂',
-                          value: controller.no2.toStringAsFixed(1),
-                        ),
-                        pollutantCard(
-                          title: 'O₃',
-                          value: controller.o3.toStringAsFixed(1),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
 
             // Favorite Route Card List
             Padding(
