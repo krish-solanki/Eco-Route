@@ -18,7 +18,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(mapProvider.notifier).getCurrentLocation();
     });
@@ -77,8 +76,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       children: [
                         Icon(Icons.my_location, color: AppColors.primary),
                         SizedBox(width: 10.w),
-                        const Expanded(
+                        Expanded(
                           child: TextField(
+                            onTap: () async {
+                              controller.showLocationOptions(context: context);
+                            },
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Current Location',
