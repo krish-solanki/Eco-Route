@@ -78,8 +78,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         SizedBox(width: 10.w),
                         Expanded(
                           child: TextField(
+                            readOnly: true,
+
                             onTap: () async {
-                              controller.showLocationOptions(context: context);
+                              await controller.showLocationOptions(context: context);
+                              if (!context.mounted) return;
                             },
                             decoration: InputDecoration(
                               border: InputBorder.none,
@@ -140,27 +143,30 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             left: 16.w,
             right: 16.w,
             bottom: 100.h,
-            child: Container(
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20.r),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Recommended Route', style: AppTextStyles.subHeading),
-                  SizedBox(height: 16.h),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50.h,
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.navigation, color: Colors.white),
-                      label: Text('Find Route', style: AppTextStyles.button),
+            child: Visibility(
+              visible: controller.recommendedRoute,
+              child: Container(
+                padding: EdgeInsets.all(16.r),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Recommended Route', style: AppTextStyles.subHeading),
+                    SizedBox(height: 16.h),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50.h,
+                      child: ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: const Icon(Icons.navigation, color: Colors.white),
+                        label: Text('Find Route', style: AppTextStyles.button),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

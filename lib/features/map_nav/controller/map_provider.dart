@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +14,7 @@ class MapController extends StateNotifier<bool> {
 
   double latitude = 22.3039;
   double longitude = 70.8022;
+  bool recommendedRoute = true;
 
   final fm.MapController internalMapController = fm.MapController();
   Future<void> getCurrentLocation() async {
@@ -59,32 +59,35 @@ class MapController extends StateNotifier<bool> {
     }
   }
 
-  Future<void> getLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  Future<void> getLocation(BuildContext context) async {
+    try {
+      PermissionStatus status = await Permission.locationWhenInUse.status;
+      if (!status.isGranted) {
+        status = await Permission.locationWhenInUse.request();
+        state = !state;
+      }
 
-    PermissionStatus status = await Permission.locationWhenInUse.request();
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
 
-    if (!status.isGranted) {
-      debugPrint('Location permission denied');
-      return;
+      latitude = position.latitude;
+      longitude = position.longitude;
+
+      internalMapController.move(LatLng(latitude, longitude), 14);
+
+      state = !state;
+    } catch (e) {
+      debugPrint(e.toString());
     }
-
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    );
-
-    latitude = position.latitude;
-    longitude = position.longitude;
-
-    debugPrint('Latitude: $latitude');
-    debugPrint('Longitude: $longitude');
-
-    internalMapController.move(LatLng(latitude, longitude), 14);
-
-    state = !state;
   }
 
   Future<void> showLocationOptions({required BuildContext context}) async {
+    recommendedRoute = false;
+    state = !state;
+
     showDialog(
       context: context,
       builder: (context) {
@@ -94,12 +97,26 @@ class MapController extends StateNotifier<bool> {
           actions: [
             TextButton(
               onPressed: () async {
-                await getLocation();
                 Navigator.pop(context);
+                recommendedRoute = false;
+                state = !state;
+
+                await getLocation(context);
+                recommendedRoute = true;
+                state = !state;
               },
               child: const Text('Current Location'),
             ),
-            TextButton(onPressed: null, child: const Text('Manual Location')),
+
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+
+                recommendedRoute = true;
+                state = !state;
+              },
+              child: const Text('Manual Location'),
+            ),
           ],
         );
       },
