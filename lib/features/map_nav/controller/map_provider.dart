@@ -1,3 +1,5 @@
+import 'package:eco_route/features/map_nav/service/place_service.dart';
+import 'package:eco_route/models/place_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' as fm;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +17,11 @@ class MapController extends StateNotifier<bool> {
   double latitude = 22.3039;
   double longitude = 70.8022;
   bool recommendedRoute = true;
+  bool isReadonly = true;
+  final List<PlaceModel> suggestions = [];
+  final placeService = PlaceService();
+  double destinationLat = 0;
+  double destinationLon = 0;
 
   final fm.MapController internalMapController = fm.MapController();
   Future<void> getCurrentLocation() async {
@@ -87,7 +94,6 @@ class MapController extends StateNotifier<bool> {
   Future<void> showLocationOptions({required BuildContext context}) async {
     recommendedRoute = false;
     state = !state;
-
     showDialog(
       context: context,
       builder: (context) {
@@ -99,6 +105,7 @@ class MapController extends StateNotifier<bool> {
               onPressed: () async {
                 Navigator.pop(context);
                 recommendedRoute = false;
+                isReadonly = false;
                 state = !state;
 
                 await getLocation(context);
@@ -111,8 +118,8 @@ class MapController extends StateNotifier<bool> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-
                 recommendedRoute = true;
+                isReadonly = false;
                 state = !state;
               },
               child: const Text('Manual Location'),
@@ -121,5 +128,17 @@ class MapController extends StateNotifier<bool> {
         );
       },
     );
+  }
+
+  Future<void> searchLocation(String query) async {
+    try {
+      if (query.isEmpty) return;
+
+      suggestions.clear();
+      suggestions.addAll(await placeService.searchPlace(query));
+      state = !state;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }

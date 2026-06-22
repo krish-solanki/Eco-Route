@@ -78,11 +78,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         SizedBox(width: 10.w),
                         Expanded(
                           child: TextField(
-                            readOnly: true,
-
+                            readOnly: controller.isReadonly,
                             onTap: () async {
-                              await controller.showLocationOptions(context: context);
-                              if (!context.mounted) return;
+                              if (controller.isReadonly) {
+                                await controller.showLocationOptions(
+                                  context: context,
+                                );
+                                if (!context.mounted) return;
+                              }
                             },
                             decoration: InputDecoration(
                               border: InputBorder.none,
@@ -100,13 +103,32 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           color: Colors.red,
                         ),
                         SizedBox(width: 10.w),
-                        const Expanded(
+                        Expanded(
                           child: TextField(
-                            decoration: InputDecoration(
+                            onChanged: (value) async {
+                              await controller.searchLocation(value);
+                            },
+                            decoration: const InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Destination',
                             ),
                           ),
+                        ),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: controller.suggestions.length,
+                          itemBuilder: (context, index) {
+                            final place = controller.suggestions[index];
+
+                            return ListTile(
+                              title: Text(place.name),
+                              onTap: () {
+                                controller.destinationLat = place.lat;
+
+                                controller.destinationLon = place.lon;
+                              },
+                            );
+                          },
                         ),
                       ],
                     ),
