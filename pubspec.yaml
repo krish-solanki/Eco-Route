@@ -33,4 +33,7 @@ flutter:
   assets:
     - assets/images/splesh_screen_image.png
     - assets/images/logo.png
+    - assets/images/auth_bg.png
+    - assets/images/apple.png
+    - assets/images/google.png
 
