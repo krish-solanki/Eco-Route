@@ -11,4 +11,8 @@ class HistoryController extends StateNotifier<bool> {
 
     state = true;
   }
+
+  Future<void> getUserDetails() async{
+    
+  }
 }

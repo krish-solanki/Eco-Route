@@ -1,5 +1,8 @@
 import 'package:eco_route/core/constants/app_colors.dart';
 import 'package:eco_route/core/constants/app_text_style.dart';
+import 'package:eco_route/features/auth/controller/auth_provider.dart';
+import 'package:eco_route/features/auth/screen/login_screen.dart';
+import 'package:eco_route/features/auth/screen/widget/custom_auth_button.dart';
 import 'package:eco_route/features/history_nav/screen/widget/custom_history_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -70,6 +73,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   ];
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
 
@@ -82,78 +87,106 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       ),
 
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text(
-                            '${historyData.length}',
-                            style: AppTextStyles.largeNumber,
-                          ),
-                          Text('Total Routes', style: AppTextStyles.caption),
-                        ],
+        child: user == null
+            ? Center(
+                child: Container(
+                  child: Column(
+                    children: [
+                      Text('Please Login'),
+                      authButton(
+                        title: 'Login',
+                        onPressed: () async {
+                          await Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-
-                    Container(width: 1, height: 40, color: AppColors.divider),
-
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text('18', style: AppTextStyles.largeNumber),
-                          Text('Eco Trips', style: AppTextStyles.caption),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
+              )
+            : Column(
                 children: [
-                  Text('Recent Routes', style: AppTextStyles.subHeading),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text(
+                                  '${historyData.length}',
+                                  style: AppTextStyles.largeNumber,
+                                ),
+                                Text(
+                                  'Total Routes',
+                                  style: AppTextStyles.caption,
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Container(
+                            width: 1,
+                            height: 40,
+                            color: AppColors.divider,
+                          ),
+
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text('18', style: AppTextStyles.largeNumber),
+                                Text('Eco Trips', style: AppTextStyles.caption),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Text('Recent Routes', style: AppTextStyles.subHeading),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: historyData.length,
+                      itemBuilder: (context, index) {
+                        final item = historyData[index];
+
+                        return historyRouteCard(
+                          icon: item['icon'],
+                          route: item['route'],
+                          date: item['date'],
+                          time: item['time'],
+                          km: item['km'],
+                          min: item['min'],
+                          aqi: item['aqi'],
+                          status: item['status'],
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: historyData.length,
-                itemBuilder: (context, index) {
-                  final item = historyData[index];
-
-                  return historyRouteCard(
-                    icon: item['icon'],
-                    route: item['route'],
-                    date: item['date'],
-                    time: item['time'],
-                    km: item['km'],
-                    min: item['min'],
-                    aqi: item['aqi'],
-                    status: item['status'],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

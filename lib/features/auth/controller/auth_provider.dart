@@ -17,6 +17,7 @@ class AuthController extends StateNotifier<UserModel?> {
     });
   }
   Future<void> loadUser() async{
-    
+
   }
 }
+

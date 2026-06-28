@@ -145,7 +145,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: [
                   SwitchListTile(
                     value: notifications,
-                    activeColor: AppColors.primary,
+                    activeThumbColor: AppColors.primary,
                     title: Text(
                       "Notifications",
                       style: AppTextStyles.bodyMedium,
