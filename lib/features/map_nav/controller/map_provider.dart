@@ -133,9 +133,9 @@ class MapController extends StateNotifier<bool> {
   Future<void> searchLocation(String query) async {
     try {
       if (query.isEmpty) return;
-
       suggestions.clear();
       suggestions.addAll(await placeService.searchPlace(query));
+      debugPrint('All Suggections: ${suggestions.toList()}');
       state = !state;
     } catch (e) {
       debugPrint(e.toString());

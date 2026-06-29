@@ -49,11 +49,27 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     width: 40,
                     height: 40,
                     child: Icon(
-                      Icons.location_on,
+                      Icons.my_location,
                       color: AppColors.primary,
                       size: 40.sp,
                     ),
                   ),
+
+                  if (controller.destinationLat != 0 &&
+                      controller.destinationLon != 0)
+                    Marker(
+                      point: LatLng(
+                        controller.destinationLat,
+                        controller.destinationLon,
+                      ),
+                      width: 40,
+                      height: 40,
+                      child: Icon(
+                        Icons.location_on,
+                        color: AppColors.danger,
+                        size: 40.sp,
+                      ),
+                    ),
                 ],
               ),
             ],
@@ -114,24 +130,32 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                             ),
                           ),
                         ),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: controller.suggestions.length,
-                          itemBuilder: (context, index) {
-                            final place = controller.suggestions[index];
-
-                            return ListTile(
-                              title: Text(place.name),
-                              onTap: () {
-                                controller.destinationLat = place.lat;
-
-                                controller.destinationLon = place.lon;
-                              },
-                            );
-                          },
-                        ),
                       ],
                     ),
+
+                    if (controller.suggestions.isNotEmpty)
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: controller.suggestions.length,
+                        itemBuilder: (context, index) {
+                          final place = controller.suggestions[index];
+
+                          return ListTile(
+                            title: Text(place.name),
+                            onTap: () {
+                              controller.destinationLat = place.lat;
+                              controller.destinationLon = place.lon;
+
+                              controller.internalMapController.move(
+                                LatLng(place.lat, place.lon),
+                                14,
+                              );
+                              controller.suggestions.clear();
+                              controller.state = !controller.state;
+                            },
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -139,24 +163,27 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
 
           // Floating Action Button for Location centering
-          Positioned(
-            right: 16.w,
-            bottom: 220.h,
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14.r),
+          Visibility(
+            visible: false,
+            child: Positioned(
+              right: 16.w,
+              bottom: 220.h,
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    child: IconButton(
+                      onPressed: () async {
+                        await controller.getCurrentLocation();
+                      },
+                      icon: const Icon(Icons.my_location),
+                    ),
                   ),
-                  child: IconButton(
-                    onPressed: () async {
-                      await controller.getCurrentLocation();
-                    },
-                    icon: const Icon(Icons.my_location),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
@@ -166,7 +193,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             right: 16.w,
             bottom: 100.h,
             child: Visibility(
-              visible: controller.recommendedRoute,
+              // visible: controller.recommendedRoute,
+              visible: false,
               child: Container(
                 padding: EdgeInsets.all(16.r),
                 decoration: BoxDecoration(
