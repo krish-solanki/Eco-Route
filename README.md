@@ -76,7 +76,7 @@ Make sure you have installed:
 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/eco_route.git
+git clone https://github.com/krish-solanki/eco_route.git
 ```
 
 2. Navigate to the project folder
